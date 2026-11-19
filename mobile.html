@@ -6,18 +6,21 @@
   <meta name="theme-color" content="#991b1b">
   <title>Scanner Tamu BBC</title>
   <link rel="manifest" href="manifest.json">
-  <!-- IKON MENGGUNAKAN FILE ICON.PNG DI GITHUB -->
   <link rel="icon" type="image/png" href="./icon.png">
   <link rel="apple-touch-icon" href="./icon.png">
   <style>
     body { font-family: system-ui, sans-serif; padding: 20px; max-width: 480px; margin: auto; background: #f8fafc; }
     .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; }
     h2 { margin-top: 0; color: #991b1b; font-size: 1.25rem; }
-    .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; text-align: center; margin-top: 10px; box-sizing: border-box; }
+    .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; text-align: center; margin-top: 10px; box-sizing: border-box; text-decoration: none; }
     .btn-primary { background: #b91c1c; color: white; }
     .btn-secondary { background: #1e293b; color: white; }
-    select, input[type="file"] { width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; background: #fff; }
-    #preview { width: 100%; margin-top: 12px; border-radius: 8px; display: none; }
+    .btn-outline { background: #f1f5f9; color: #1e293b; border: 1.5px solid #cbd5e1; }
+    .btn-camera { background: #0284c7; color: white; }
+    .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+    .btn-group .btn { margin-top: 0; flex: 1; padding: 12px 8px; font-size: 14px; }
+    select, input[type="file"].standard-input { width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; background: #fff; }
+    #preview { width: 100%; margin-top: 12px; border-radius: 8px; display: none; border: 1px solid #cbd5e1; }
     #status { margin-top: 15px; font-weight: bold; text-align: center; color: #0f172a; }
   </style>
 </head>
@@ -26,9 +29,18 @@
   <!-- FITUR 1: SCAN TABEL DAFTAR TAMU -->
   <div class="card">
     <h2>📷 Scan Tabel Daftar Tamu</h2>
-    <p style="font-size: 14px; color: #475569;">Ambil foto langsung atau pilih dari galeri. Tulisan yang kurang jelas akan otomatis ditandai untuk dicek di laptop.</p>
+    <p style="font-size: 14px; color: #475569;">Ambil foto langsung menggunakan kamera atau pilih dari galeri. Tulisan yang kurang jelas otomatis ditandai untuk dicek di laptop.</p>
     
-    <input type="file" id="tableInput" accept="image/*" onchange="previewImage(event, 'preview')">
+    <!-- Input tersembunyi khusus Kamera & Galeri -->
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="handleTableImage(event)">
+    <input type="file" id="galleryInput" accept="image/*" style="display:none" onchange="handleTableImage(event)">
+
+    <!-- Dua Tombol Terpisah -->
+    <div class="btn-group">
+      <button type="button" class="btn btn-camera" onclick="document.getElementById('cameraInput').click()">📸 Buka Kamera</button>
+      <button type="button" class="btn btn-outline" onclick="document.getElementById('galleryInput').click()">🖼️ Pilih Galeri</button>
+    </div>
+
     <img id="preview">
     <button class="btn btn-primary" onclick="uploadTableScan()">Proses & Kirim ke Spreadsheet</button>
     <div id="status"></div>
@@ -40,15 +52,15 @@
     <label style="font-size: 14px;">Pilih Nama Tamu:</label>
     <select id="guestSelect"><option>Memuat daftar tamu...</option></select>
     
-    <input type="file" id="proofInput" accept="image/*" style="margin-top: 12px;">
+    <input type="file" id="proofInput" accept="image/*" class="standard-input" style="margin-top: 12px;">
     <button class="btn btn-secondary" onclick="uploadProofHP()">Upload Screenshot WA</button>
     <div id="proofStatus" style="margin-top:10px; font-weight:bold; text-align:center;"></div>
   </div>
 
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbx6cygu4XWLXlqUkJSYoDT-a7P4y7YTIy9ndlKyiFDCVotnn7RxDe29NDbfKGgMhkdc/exec";
+  let selectedTableFile = null; // Menyimpan file baik dari kamera maupun galeri
 
-  // Daftarkan Service Worker agar Android Chrome memunculkan tombol "Install App"
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW gagal:', err));
   }
@@ -72,12 +84,14 @@
 
   window.onload = loadGuestList;
 
-  function previewImage(event, imgId) {
+  function handleTableImage(event) {
     const file = event.target.files[0];
     if (file) {
-      const img = document.getElementById(imgId);
+      selectedTableFile = file;
+      const img = document.getElementById("preview");
       img.src = URL.createObjectURL(file);
       img.style.display = "block";
+      document.getElementById("status").innerText = "";
     }
   }
 
@@ -108,12 +122,11 @@
   }
 
   async function uploadTableScan() {
-    const fileInput = document.getElementById("tableInput");
     const status = document.getElementById("status");
-    if (!fileInput.files[0]) return alert("Pilih atau foto tabel terlebih dahulu!");
+    if (!selectedTableFile) return alert("Ambil foto lewat kamera atau pilih dari galeri terlebih dahulu!");
 
     status.innerText = "⏳ Mengompresi & membaca tulisan tangan...";
-    const base64 = await compressImage(fileInput.files[0]);
+    const base64 = await compressImage(selectedTableFile);
 
     try {
       const res = await fetch(API_URL, {
@@ -124,7 +137,9 @@
       const result = await res.json();
       if (result.status === "success") {
         status.innerText = `✅ Berhasil! ${result.count} baris masuk ke Spreadsheet.`;
-        fileInput.value = "";
+        selectedTableFile = null;
+        document.getElementById("cameraInput").value = "";
+        document.getElementById("galleryInput").value = "";
         document.getElementById("preview").style.display = "none";
         loadGuestList();
       } else {
