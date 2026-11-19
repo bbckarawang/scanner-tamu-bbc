@@ -42,9 +42,8 @@
   </div>
 
 <script>
-  const API_URL = "PASTE_URL_WEB_APP_APPS_SCRIPT_DISINI";
+  const API_URL = "https://script.google.com/macros/s/AKfycbx6cygu4XWLXlqUkJSYoDT-a7P4y7YTIy9ndlKyiFDCVotnn7RxDe29NDbfKGgMhkdc/exec";
 
-  // Muat daftar nama tamu saat aplikasi dibuka
   window.onload = async () => {
     try {
       const res = await fetch(API_URL);
@@ -71,7 +70,6 @@
     }
   }
 
-  // Kompresi gambar otomatis sebelum dikirim agar ringan & cepat
   function compressImage(file, maxWidth = 1600, quality = 0.8) {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -92,7 +90,7 @@
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, width, height);
           const dataUrl = canvas.toDataURL("image/jpeg", quality);
-          resolve(dataUrl.split(",")[1]); // Ambil base64 murni
+          resolve(dataUrl.split(",")[1]);
         };
       };
     });
@@ -116,6 +114,7 @@
       if (result.status === "success") {
         status.innerText = `✅ Berhasil! ${result.count} baris masuk ke Spreadsheet.`;
         fileInput.value = "";
+        document.getElementById("preview").style.display = "none";
       } else {
         status.innerText = "❌ Gagal: " + result.message;
       }
