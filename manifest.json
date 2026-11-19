@@ -10,9 +10,9 @@
   "theme_color": "#991b1b",
   "icons": [
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='110' fill='%23991b1b'/%3E%3Crect x='96' y='80' width='320' height='352' rx='32' fill='%23ffffff'/%3E%3Crect x='144' y='140' width='140' height='24' rx='12' fill='%23991b1b'/%3E%3Crect x='144' y='200' width='224' height='20' rx='10' fill='%23cbd5e1'/%3E%3Crect x='144' y='250' width='180' height='20' rx='10' fill='%23cbd5e1'/%3E%3Ccircle cx='356' cy='356' r='84' fill='%2316a34a' stroke='%23ffffff' stroke-width='16'/%3E%3Cpath d='M322 356l24 24 46-48' fill='none' stroke='%23ffffff' stroke-width='18' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "src": "./icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
