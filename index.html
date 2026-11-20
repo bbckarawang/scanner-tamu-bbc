@@ -4,35 +4,68 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Daftar Tamu - Build Better Communication</title>
-  <!-- FAVICON UNTUK TAB BROWSER LAPTOP -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='110' fill='%23991b1b'/%3E%3Crect x='96' y='80' width='320' height='352' rx='32' fill='%23ffffff'/%3E%3Crect x='144' y='140' width='140' height='24' rx='12' fill='%23991b1b'/%3E%3Crect x='144' y='200' width='224' height='20' rx='10' fill='%23cbd5e1'/%3E%3Crect x='144' y='250' width='180' height='20' rx='10' fill='%23cbd5e1'/%3E%3Ccircle cx='356' cy='356' r='84' fill='%2316a34a' stroke='%23ffffff' stroke-width='16'/%3E%3Cpath d='M322 356l24 24 46-48' fill='none' stroke='%23ffffff' stroke-width='18' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <style>
-    body { font-family: system-ui, sans-serif; margin: 20px; background: #f1f5f9; color: #1e293b; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-    table { width: 100%; border-collapse: collapse; background: white; font-size: 13px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-    th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
-    th { background: #991b1b; color: white; }
-    td[contenteditable="true"] { background: #fff; text-align: left; cursor: text; min-width: 80px; }
-    td[contenteditable="true"]:focus { outline: 2px solid #2563eb; background: #eff6ff; }
+    body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 20px; background: #f1f5f9; color: #1e293b; }
+    .top-bar { position: sticky; top: 0; z-index: 50; background: #f1f5f9; padding: 10px 0 15px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #cbd5e1; }
+    .top-bar h2 { margin: 0; font-size: 1.35rem; color: #0f172a; }
+    .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .badge-info { background: #fef08a; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; color: #854d0e; border: 1px solid #fde047; }
+    
+    .table-wrapper { max-height: calc(100vh - 110px); overflow: auto; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #cbd5e1; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+    th, td { border-right: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; padding: 9px 8px; text-align: center; }
+    
+    /* Sticky Table Header */
+    thead th { position: sticky; background: #991b1b; color: white; z-index: 20; font-weight: 600; }
+    thead tr:nth-child(1) th { top: 0; }
+    thead tr:nth-child(2) th { top: 34px; }
+
+    /* Highlight baris aktif saat diklik */
+    tbody tr { transition: background-color 0.15s ease; }
+    tbody tr:hover td { background-color: #f8fafc; }
+    tbody tr.active-row td { background-color: #e0f2fe !important; }
+    
+    td[contenteditable="true"] { text-align: left; cursor: text; min-width: 85px; }
+    td[contenteditable="true"]:focus { outline: 2px solid #2563eb; background: #ffffff !important; border-radius: 2px; }
+    
+    /* Penanda sel yang sudah diedit tapi belum disimpan */
+    tr.is-dirty td:first-child { border-left: 4px solid #2563eb; }
     .needs-review { background-color: #fef08a !important; font-weight: bold; color: #854d0e; }
-    .btn { padding: 6px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold; }
-    .btn-save { background: #16a34a; color: white; }
-    .btn-paste { background: #2563eb; color: white; }
-    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index: 999; }
-    .modal-box { background:white; padding:25px; border-radius:10px; width:400px; text-align:center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+
+    .btn { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-save-all { background: #16a34a; color: white; box-shadow: 0 2px 6px rgba(22, 163, 74, 0.3); }
+    .btn-save-all:hover { background: #15803d; }
+    .btn-save-all:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; }
+    .btn-refresh { background: #2563eb; color: white; }
+    .btn-refresh:hover { background: #1d4ed8; }
+    .btn-paste { background: #e2e8f0; color: #1e293b; padding: 5px 9px; font-size: 12px; }
+    .btn-paste:hover { background: #cbd5e1; }
+
+    /* Modal Paste */
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.6); backdrop-filter: blur(2px); align-items:center; justify-content:center; z-index: 999; }
+    .modal-box { background:white; padding:25px; border-radius:12px; width:400px; text-align:center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+
+    /* Toast Notification Elegan */
+    #toastContainer { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+    .toast { background: #1e293b; color: white; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease forwards; }
+    .toast.success { background: #15803d; }
+    .toast.error { background: #b91c1c; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   </style>
 </head>
 <body>
 
-  <div class="header">
+  <div class="top-bar">
     <h2>📋 Daftar Tamu - Build Better Communication</h2>
-    <div>
-      <span style="background:#fef08a; padding:4px 8px; border-radius:4px; font-size:12px;">🟨 Kuning = Tulisan meragukan (Klik sel untuk edit)</span>
-      <button class="btn btn-paste" onclick="loadData()" style="margin-left:10px;">🔄 Refresh Data</button>
+    <div class="controls">
+      <span class="badge-info">🟨 Kuning = Perlu dicek</span>
+      <button class="btn btn-refresh" onclick="loadData()">🔄 Refresh</button>
+      <button class="btn btn-save-all" id="btnSaveAll" onclick="saveAllChanges()" disabled>💾 Simpan Semua Perubahan (0)</button>
     </div>
   </div>
 
-  <div style="overflow-x:auto;">
+  <div class="table-wrapper">
     <table id="guestTable">
       <thead>
         <tr>
@@ -47,7 +80,6 @@
           <th rowspan="2">Follow Up</th>
           <th rowspan="2">Bukti Screenshot</th>
           <th rowspan="2">Keterangan</th>
-          <th rowspan="2">Aksi</th>
         </tr>
         <tr>
           <th>Reguler</th><th>Percakapan</th><th>Private</th><th>TOEFL/TOEIC</th>
@@ -55,7 +87,7 @@
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr><td colspan="18">Memuat data dari Google Sheets...</td></tr>
+        <tr><td colspan="17" style="padding:20px;">Memuat data dari Google Sheets...</td></tr>
       </tbody>
     </table>
   </div>
@@ -63,37 +95,78 @@
   <!-- MODAL PASTE PRINTSCREEN LAPTOP -->
   <div class="modal" id="pasteModal">
     <div class="modal-box">
-      <h3 id="modalTitle">Lampirkan Bukti Follow-Up</h3>
-      <p style="font-size:13px; color:#475569;">Tekan <b>PrintScreen</b> di layar WhatsApp/Chat, lalu klik di kotak ini dan tekan <b>Ctrl + V</b>.</p>
-      <div id="pasteZone" style="border:2px dashed #94a3b8; padding:30px; margin:15px 0; border-radius:8px; color:#64748b;">
-        Tekan Ctrl + V di sini
+      <h3 id="modalTitle" style="margin-top:0;">Lampirkan Bukti Follow-Up</h3>
+      <p style="font-size:13px; color:#475569;">Tekan <b>PrintScreen</b> di layar WhatsApp, lalu tekan <b>Ctrl + V</b> di mana saja pada jendela ini.</p>
+      <div style="border:2px dashed #94a3b8; padding:30px; margin:15px 0; border-radius:8px; color:#64748b; background:#f8fafc;">
+        Menunggu Ctrl + V ...
       </div>
-      <div id="modalStatus" style="font-weight:bold; margin-bottom:10px;"></div>
-      <button class="btn" onclick="closeModal()">Tutup</button>
+      <div id="modalStatus" style="font-weight:bold; margin-bottom:12px; font-size:13px;"></div>
+      <button class="btn btn-paste" onclick="closeModal()">Tutup</button>
     </div>
   </div>
+
+  <!-- CONTAINER TOAST NOTIFICATION -->
+  <div id="toastContainer"></div>
 
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbx6cygu4XWLXlqUkJSYoDT-a7P4y7YTIy9ndlKyiFDCVotnn7RxDe29NDbfKGgMhkdc/exec";
   let activeRowForProof = null;
+  let dirtyRows = new Set(); // Menyimpan rowIndex baris yang telah diubah
+
+  function showToast(message, type = "info") {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.innerHTML = message;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateX(100%)";
+      toast.style.transition = "all 0.3s ease";
+      setTimeout(() => toast.remove(), 300);
+    }, 3500);
+  }
+
+  function updateSaveButton() {
+    const btn = document.getElementById("btnSaveAll");
+    btn.innerText = `💾 Simpan Semua Perubahan (${dirtyRows.size})`;
+    btn.disabled = dirtyRows.size === 0;
+  }
 
   async function loadData() {
     const tbody = document.getElementById("tableBody");
-    tbody.innerHTML = '<tr><td colspan="18">Mengambil data terbaru...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="17" style="padding:20px;">Mengambil data terbaru...</td></tr>';
+    dirtyRows.clear();
+    updateSaveButton();
+
     try {
       const res = await fetch(API_URL);
       const json = await res.json();
       tbody.innerHTML = "";
 
       if (json.data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="18">Belum ada data tamu. Silakan scan melalui aplikasi HP.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="17" style="padding:20px;">Belum ada data tamu.</td></tr>';
         return;
       }
 
       json.data.forEach(row => {
         const tr = document.createElement("tr");
+        tr.dataset.rowIndex = row.rowIndex;
+
+        // Sorot baris saat diklik
+        tr.addEventListener("click", () => {
+          document.querySelectorAll("#tableBody tr").forEach(r => r.classList.remove("active-row"));
+          tr.classList.add("active-row");
+        });
+
+        // Tandai baris jika ada sel yang diedit
+        tr.addEventListener("input", () => {
+          tr.classList.add("is-dirty");
+          dirtyRows.add(row.rowIndex);
+          updateSaveButton();
+        });
+
         const checkClass = (val) => String(val).includes("[CEK]") ? "needs-review" : "";
-        // Amankan tanda petik pada nama agar tidak merusak tombol
         const safeName = String(row.Nama || "Tamu").replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
         tr.innerHTML = `
@@ -114,45 +187,63 @@
           <td contenteditable="true">${row.Follow_Up_Status || ""}</td>
           <td>
             ${row.Bukti_Follow_Up 
-              ? `<a href="${row.Bukti_Follow_Up}" target="_blank">🖼️ Lihat Bukti</a>` 
+              ? `<a href="${row.Bukti_Follow_Up}" target="_blank" style="color:#2563eb; font-weight:600; text-decoration:none;">🖼️ Lihat Bukti</a>` 
               : `<button class="btn btn-paste" onclick="openPasteModal(${row.rowIndex}, '${safeName}')">+ Paste Bukti</button>`}
           </td>
           <td contenteditable="true">${row.Keterangan || ""}</td>
-          <td><button class="btn btn-save" onclick="saveRow(this, ${row.rowIndex})">Simpan</button></td>
         `;
         tbody.appendChild(tr);
       });
     } catch (e) {
-      tbody.innerHTML = '<tr><td colspan="18" style="color:red;">Gagal memuat data. Periksa koneksi atau URL Apps Script.</td></tr>';
+      showToast("❌ Gagal memuat data dari server", "error");
     }
   }
 
-  async function saveRow(btn, rowIndex) {
-    const cells = btn.closest("tr").querySelectorAll("td");
-    btn.innerText = "⏳...";
-    
-    // Bersihkan tag [CEK] jika sudah diedit oleh admin
-    const cleanText = (txt) => txt.replace(/\[CEK\]/gi, "").trim();
+  async function saveAllChanges() {
+    if (dirtyRows.size === 0) return;
+    const btn = document.getElementById("btnSaveAll");
+    btn.disabled = true;
+    btn.innerText = "⏳ Menyimpan...";
 
-    const payload = {
-      action: "update_row",
-      rowIndex: rowIndex,
-      data: {
-        Tanggal: cleanText(cells[0].innerText),
-        Nama: cleanText(cells[1].innerText),
-        No_HP: cleanText(cells[2].innerText),
-        Pendidikan_Pekerjaan: cleanText(cells[5].innerText),
-        Follow_Up_Status: cells[14].innerText.trim(),
-        Keterangan: cells[16].innerText.trim()
+    const cleanText = (txt) => txt.replace(/\[CEK\]/gi, "").trim();
+    const updates = [];
+
+    dirtyRows.forEach(rowIndex => {
+      const tr = document.querySelector(`tr[data-row-index="${rowIndex}"]`);
+      if (tr) {
+        const cells = tr.querySelectorAll("td");
+        updates.push({
+          rowIndex: Number(rowIndex),
+          data: {
+            Tanggal: cleanText(cells[0].innerText),
+            Nama: cleanText(cells[1].innerText),
+            No_HP: cleanText(cells[2].innerText),
+            Pendidikan_Pekerjaan: cleanText(cells[5].innerText),
+            Follow_Up_Status: cells[14].innerText.trim(),
+            Keterangan: cells[16].innerText.trim()
+          }
+        });
       }
-    };
-    await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
     });
-    btn.innerText = "✅ Tersimpan";
-    setTimeout(() => { btn.innerText = "Simpan"; loadData(); }, 1000);
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "update_batch", updates: updates })
+      });
+      const result = await res.json();
+      if (result.status === "success") {
+        showToast(`✅ ${result.count} baris berhasil disimpan ke Spreadsheet!`, "success");
+        loadData();
+      } else {
+        showToast("❌ Gagal menyimpan: " + result.message, "error");
+        updateSaveButton();
+      }
+    } catch (err) {
+      showToast("❌ Gangguan koneksi saat menyimpan", "error");
+      updateSaveButton();
+    }
   }
 
   function openPasteModal(rowIndex, nama) {
@@ -188,8 +279,9 @@
           });
           const result = await res.json();
           if (result.status === "success") {
-            document.getElementById("modalStatus").innerText = "✅ Berhasil dilampirkan!";
-            setTimeout(() => { closeModal(); loadData(); }, 1000);
+            closeModal();
+            showToast(`✅ Bukti follow-up untuk ${activeRowForProof.nama} tersimpan!`, "success");
+            loadData();
           }
         };
         reader.readAsDataURL(blob);
