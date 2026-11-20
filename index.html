@@ -8,6 +8,8 @@
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 20px; background: #f1f5f9; color: #1e293b; }
     .top-bar { position: sticky; top: 0; z-index: 50; background: #f1f5f9; padding: 10px 0 15px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #cbd5e1; }
+    .title-group { display: flex; align-items: center; gap: 12px; }
+    .brand-logo { height: 34px; width: auto; border-radius: 4px; object-fit: contain; }
     .top-bar h2 { margin: 0; font-size: 1.35rem; color: #0f172a; }
     .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .badge-info { background: #fef08a; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; color: #854d0e; border: 1px solid #fde047; }
@@ -57,7 +59,10 @@
 <body>
 
   <div class="top-bar">
-    <h2>📋 Daftar Tamu - Build Better Communication</h2>
+    <div class="title-group">
+      <img src="https://lh3.googleusercontent.com/d/1xp4tsE6RhaxXFSC7XQN45_3TOdUsUe5j" alt="Logo BBC" class="brand-logo">
+      <h2>Daftar Tamu - Build Better Communication</h2>
+    </div>
     <div class="controls">
       <span class="badge-info">🟨 Kuning = Perlu dicek</span>
       <button class="btn btn-refresh" onclick="loadData()">🔄 Refresh</button>
@@ -111,7 +116,16 @@
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbx6cygu4XWLXlqUkJSYoDT-a7P4y7YTIy9ndlKyiFDCVotnn7RxDe29NDbfKGgMhkdc/exec";
   let activeRowForProof = null;
-  let dirtyRows = new Set(); // Menyimpan rowIndex baris yang telah diubah
+  let dirtyRows = new Set();
+
+  function formatPhoneDisplay(hp) {
+    if (!hp) return "";
+    let str = String(hp).trim();
+    if (str.startsWith("8")) {
+      str = "0" + str;
+    }
+    return str;
+  }
 
   function showToast(message, type = "info") {
     const container = document.getElementById("toastContainer");
@@ -153,13 +167,11 @@
         const tr = document.createElement("tr");
         tr.dataset.rowIndex = row.rowIndex;
 
-        // Sorot baris saat diklik
         tr.addEventListener("click", () => {
           document.querySelectorAll("#tableBody tr").forEach(r => r.classList.remove("active-row"));
           tr.classList.add("active-row");
         });
 
-        // Tandai baris jika ada sel yang diedit
         tr.addEventListener("input", () => {
           tr.classList.add("is-dirty");
           dirtyRows.add(row.rowIndex);
@@ -168,14 +180,15 @@
 
         const checkClass = (val) => String(val).includes("[CEK]") ? "needs-review" : "";
         const safeName = String(row.Nama || "Tamu").replace(/'/g, "\\'").replace(/"/g, "&quot;");
+        const displayHp = formatPhoneDisplay(row.No_HP);
 
         tr.innerHTML = `
-          <td contenteditable="true" class="${checkClass(row.Tanggal)}">${row.Tanggal || ""}</td>
-          <td contenteditable="true" class="${checkClass(row.Nama)}">${row.Nama || ""}</td>
-          <td contenteditable="true" class="${checkClass(row.No_HP)}">${row.No_HP || ""}</td>
+          <td contenteditable="true" spellcheck="false" class="${checkClass(row.Tanggal)}">${row.Tanggal || ""}</td>
+          <td contenteditable="true" spellcheck="false" class="${checkClass(row.Nama)}">${row.Nama || ""}</td>
+          <td contenteditable="true" spellcheck="false" class="${checkClass(displayHp)}">${displayHp}</td>
           <td>${row.Orang_Tua_Wali || ""}</td>
           <td>${row.Peserta || ""}</td>
-          <td contenteditable="true" class="${checkClass(row.Pendidikan_Pekerjaan)}">${row.Pendidikan_Pekerjaan || ""}</td>
+          <td contenteditable="true" spellcheck="false" class="${checkClass(row.Pendidikan_Pekerjaan)}">${row.Pendidikan_Pekerjaan || ""}</td>
           <td>${row.Kelas_Reguler || ""}</td>
           <td>${row.Kelas_Percakapan || ""}</td>
           <td>${row.Private || ""}</td>
@@ -184,13 +197,13 @@
           <td>${row.Brosur || ""}</td>
           <td>${row.Internet_Sosmed || ""}</td>
           <td>${row.Kenalan || ""}</td>
-          <td contenteditable="true">${row.Follow_Up_Status || ""}</td>
+          <td contenteditable="true" spellcheck="false">${row.Follow_Up_Status || ""}</td>
           <td>
             ${row.Bukti_Follow_Up 
               ? `<a href="${row.Bukti_Follow_Up}" target="_blank" style="color:#2563eb; font-weight:600; text-decoration:none;">🖼️ Lihat Bukti</a>` 
               : `<button class="btn btn-paste" onclick="openPasteModal(${row.rowIndex}, '${safeName}')">+ Paste Bukti</button>`}
           </td>
-          <td contenteditable="true">${row.Keterangan || ""}</td>
+          <td contenteditable="true" spellcheck="false">${row.Keterangan || ""}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -217,7 +230,7 @@
           data: {
             Tanggal: cleanText(cells[0].innerText),
             Nama: cleanText(cells[1].innerText),
-            No_HP: cleanText(cells[2].innerText),
+            No_HP: formatPhoneDisplay(cleanText(cells[2].innerText)),
             Pendidikan_Pekerjaan: cleanText(cells[5].innerText),
             Follow_Up_Status: cells[14].innerText.trim(),
             Keterangan: cells[16].innerText.trim()
