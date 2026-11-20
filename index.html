@@ -13,6 +13,7 @@
     .top-bar h2 { margin: 0; font-size: 1.35rem; color: #0f172a; }
     .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .badge-info { background: #fef08a; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; color: #854d0e; border: 1px solid #fde047; }
+    .badge-hint { background: #e0f2fe; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; color: #0369a1; border: 1px solid #bae6fd; }
     
     .table-wrapper { max-height: calc(100vh - 110px); overflow: auto; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #cbd5e1; }
     table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
@@ -28,8 +29,15 @@
     tbody tr:hover td { background-color: #f8fafc; }
     tbody tr.active-row td { background-color: #e0f2fe !important; }
     
-    td[contenteditable="true"] { text-align: left; cursor: text; min-width: 85px; }
+    /* Semua sel editable */
+    td[contenteditable="true"] { cursor: text; min-width: 45px; }
+    td.text-left { text-align: left; min-width: 90px; }
+    td.center-edit { text-align: center; min-width: 48px; }
     td[contenteditable="true"]:focus { outline: 2px solid #2563eb; background: #ffffff !important; border-radius: 2px; }
+    
+    /* Sel centang interaktif (klik untuk ✓) */
+    td.check-toggle { cursor: pointer; user-select: none; font-weight: bold; color: #16a34a; font-size: 15px; min-width: 48px; }
+    td.check-toggle:hover { background-color: #dcfce7 !important; }
     
     /* Penanda sel yang sudah diedit tapi belum disimpan */
     tr.is-dirty td:first-child { border-left: 4px solid #2563eb; }
@@ -64,6 +72,7 @@
       <h2>Daftar Tamu - Build Better Communication</h2>
     </div>
     <div class="controls">
+      <span class="badge-hint">💡 Klik kotak kosong untuk isi teks / centang (✓)</span>
       <span class="badge-info">🟨 Kuning = Perlu dicek</span>
       <button class="btn btn-refresh" onclick="loadData()">🔄 Refresh</button>
       <button class="btn btn-save-all" id="btnSaveAll" onclick="saveAllChanges()" disabled>💾 Simpan Semua Perubahan (0)</button>
@@ -147,6 +156,19 @@
     btn.disabled = dirtyRows.size === 0;
   }
 
+  function markRowDirty(tr, rowIndex) {
+    tr.classList.add("is-dirty");
+    dirtyRows.add(rowIndex);
+    updateSaveButton();
+  }
+
+  function toggleCheckCell(td, rowIndex) {
+    const current = td.innerText.trim();
+    td.innerText = current === "✓" ? "" : "✓";
+    const tr = td.closest("tr");
+    markRowDirty(tr, rowIndex);
+  }
+
   async function loadData() {
     const tbody = document.getElementById("tableBody");
     tbody.innerHTML = '<tr><td colspan="17" style="padding:20px;">Mengambil data terbaru...</td></tr>';
@@ -173,9 +195,7 @@
         });
 
         tr.addEventListener("input", () => {
-          tr.classList.add("is-dirty");
-          dirtyRows.add(row.rowIndex);
-          updateSaveButton();
+          markRowDirty(tr, row.rowIndex);
         });
 
         const checkClass = (val) => String(val).includes("[CEK]") ? "needs-review" : "";
@@ -183,27 +203,27 @@
         const displayHp = formatPhoneDisplay(row.No_HP);
 
         tr.innerHTML = `
-          <td contenteditable="true" spellcheck="false" class="${checkClass(row.Tanggal)}">${row.Tanggal || ""}</td>
-          <td contenteditable="true" spellcheck="false" class="${checkClass(row.Nama)}">${row.Nama || ""}</td>
-          <td contenteditable="true" spellcheck="false" class="${checkClass(displayHp)}">${displayHp}</td>
-          <td>${row.Orang_Tua_Wali || ""}</td>
-          <td>${row.Peserta || ""}</td>
-          <td contenteditable="true" spellcheck="false" class="${checkClass(row.Pendidikan_Pekerjaan)}">${row.Pendidikan_Pekerjaan || ""}</td>
-          <td>${row.Kelas_Reguler || ""}</td>
-          <td>${row.Kelas_Percakapan || ""}</td>
-          <td>${row.Private || ""}</td>
-          <td>${row.TOEFL_TOEIC || ""}</td>
-          <td>${row.Spanduk || ""}</td>
-          <td>${row.Brosur || ""}</td>
-          <td>${row.Internet_Sosmed || ""}</td>
-          <td>${row.Kenalan || ""}</td>
-          <td contenteditable="true" spellcheck="false">${row.Follow_Up_Status || ""}</td>
+          <td contenteditable="true" spellcheck="false" class="text-left ${checkClass(row.Tanggal)}">${row.Tanggal || ""}</td>
+          <td contenteditable="true" spellcheck="false" class="text-left ${checkClass(row.Nama)}">${row.Nama || ""}</td>
+          <td contenteditable="true" spellcheck="false" class="text-left ${checkClass(displayHp)}">${displayHp}</td>
+          <td class="check-toggle" onclick="toggleCheckCell(this, ${row.rowIndex})" title="Klik untuk centang/hapus">${row.Orang_Tua_Wali || ""}</td>
+          <td class="check-toggle" onclick="toggleCheckCell(this, ${row.rowIndex})" title="Klik untuk centang/hapus">${row.Peserta || ""}</td>
+          <td contenteditable="true" spellcheck="false" class="text-left ${checkClass(row.Pendidikan_Pekerjaan)}">${row.Pendidikan_Pekerjaan || ""}</td>
+          <td contenteditable="true" spellcheck="false" class="center-edit">${row.Kelas_Reguler || ""}</td>
+          <td class="check-toggle" onclick="toggleCheckCell(this, ${row.rowIndex})" title="Klik untuk centang/hapus">${row.Kelas_Percakapan || ""}</td>
+          <td contenteditable="true" spellcheck="false" class="center-edit">${row.Private || ""}</td>
+          <td class="check-toggle" onclick="toggleCheckCell(this, ${row.rowIndex})" title="Klik untuk centang/hapus">${row.TOEFL_TOEIC || ""}</td>
+          <td class="check-toggle" onclick="toggleCheckCell(this, ${row.rowIndex})" title="Klik untuk centang/hapus">${row.Spanduk || ""}</td>
+          <td class="check-toggle" onclick="toggleCheckCell(this, ${row.rowIndex})" title="Klik untuk centang/hapus">${row.Brosur || ""}</td>
+          <td class="check-toggle" onclick="toggleCheckCell(this, ${row.rowIndex})" title="Klik untuk centang/hapus">${row.Internet_Sosmed || ""}</td>
+          <td class="check-toggle" onclick="toggleCheckCell(this, ${row.rowIndex})" title="Klik untuk centang/hapus">${row.Kenalan || ""}</td>
+          <td class="check-toggle" onclick="toggleCheckCell(this, ${row.rowIndex})" title="Klik untuk centang/hapus">${row.Follow_Up_Status || ""}</td>
           <td>
             ${row.Bukti_Follow_Up 
               ? `<a href="${row.Bukti_Follow_Up}" target="_blank" style="color:#2563eb; font-weight:600; text-decoration:none;">🖼️ Lihat Bukti</a>` 
               : `<button class="btn btn-paste" onclick="openPasteModal(${row.rowIndex}, '${safeName}')">+ Paste Bukti</button>`}
           </td>
-          <td contenteditable="true" spellcheck="false">${row.Keterangan || ""}</td>
+          <td contenteditable="true" spellcheck="false" class="text-left">${row.Keterangan || ""}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -231,9 +251,19 @@
             Tanggal: cleanText(cells[0].innerText),
             Nama: cleanText(cells[1].innerText),
             No_HP: formatPhoneDisplay(cleanText(cells[2].innerText)),
+            Orang_Tua_Wali: cells[3].innerText.trim(),
+            Peserta: cells[4].innerText.trim(),
             Pendidikan_Pekerjaan: cleanText(cells[5].innerText),
+            Kelas_Reguler: cleanText(cells[6].innerText),
+            Kelas_Percakapan: cells[7].innerText.trim(),
+            Private: cleanText(cells[8].innerText),
+            TOEFL_TOEIC: cells[9].innerText.trim(),
+            Spanduk: cells[10].innerText.trim(),
+            Brosur: cells[11].innerText.trim(),
+            Internet_Sosmed: cells[12].innerText.trim(),
+            Kenalan: cells[13].innerText.trim(),
             Follow_Up_Status: cells[14].innerText.trim(),
-            Keterangan: cells[16].innerText.trim()
+            Keterangan: cleanText(cells[16].innerText)
           }
         });
       }
