@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panduan Penggunaan - Scanner & Dashboard Tamu BBC</title>
+  <link rel="icon" type="image/png" href="./icon.png">
+  <style>
+    :root {
+      --primary: #991b1b;
+      --primary-light: #fef2f2;
+      --primary-border: #fecaca;
+      --secondary: #1e293b;
+      --accent: #0284c7;
+      --success: #15803d;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #475569;
+      --border: #cbd5e1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Header & Hero */
+    header {
+      background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+      color: white;
+      padding: 32px 20px 42px 20px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(153, 27, 27, 0.2);
+    }
+    .header-inner {
+      max-width: 900px;
+      margin: auto;
+    }
+    .logo-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      padding: 8px 16px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .logo-wrap img {
+      height: 42px;
+      width: auto;
+      object-fit: contain;
+    }
+    header h1 {
+      margin: 0 0 8px 0;
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+    header p {
+      margin: 0 auto;
+      max-width: 650px;
+      font-size: 0.98rem;
+      color: #fee2e2;
+    }
+
+    /* Quick Access Bar */
+    .quick-access {
+      max-width: 900px;
+      margin: -24px auto 24px auto;
+      padding: 0 16px;
+    }
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .qa-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .qa-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+    }
+    .qa-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #0f172a;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .qa-desc {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .btn-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      text-decoration: none;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.2s;
+    }
+    .btn-link:hover { opacity: 0.92; }
+    .btn-laptop { background: var(--primary); color: white; }
+    .btn-hp { background: var(--accent); color: white; }
+
+    /* Container Utama */
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 0 16px 50px 16px;
+    }
+
+    /* Tab Navigasi */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      background: #e2e8f0;
+      padding: 6px;
+      border-radius: 12px;
+    }
+    .tab-btn {
+      flex: 1;
+      min-width: 140px;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: #475569;
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    /* Section Card */
+    .section-panel { display: none; }
+    .section-panel.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.25rem;
+      color: var(--primary);
+      border-bottom: 2px solid var(--primary-light);
+      padding-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Step List */
+    .step-item {
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: 20px;
+      align-items: center;
+      padding: 18px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .step-item:last-child { border-bottom: none; padding-bottom: 0; }
+    @media (max-width: 720px) {
+      .step-item { grid-template-columns: 1fr; }
+    }
+    .step-badge {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 6px;
+    }
+    .step-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .step-desc {
+      font-size: 0.93rem;
+      color: #334155;
+      margin: 0;
+    }
+    .step-desc ul {
+      margin: 6px 0 0 0;
+      padding-left: 18px;
+    }
+    .step-desc li { margin-bottom: 4px; }
+
+    /* Ilustrasi Mockup SVG */
+    .mockup-box {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+    }
+    .mockup-box svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 6px;
+    }
+    .mockup-caption {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* Callout / Tips */
+    .callout {
+      background: #fefce8;
+      border-left: 4px solid #eab308;
+      padding: 14px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 14px;
+      font-size: 0.9rem;
+      color: #713f12;
+    }
+    .callout.info {
+      background: #f0f9ff;
+      border-left-color: #0284c7;
+      color: #0c4a6e;
+    }
+
+    /* Alur Diagram */
+    .flow-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      margin: 14px 0;
+    }
+    .flow-node {
+      flex: 1;
+      min-width: 140px;
+      background: white;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .flow-node span { display: block; font-size: 1.5rem; margin-bottom: 4px; }
+    .flow-arrow { font-size: 1.2rem; color: #991b1b; font-weight: bold; }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.85rem;
+      color: #64748b;
+      border-top: 1px solid #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="logo-wrap">
+        <img src="https://lh3.googleusercontent.com/d/1xp4tsE6RhaxXFSC7XQN45_3TOdUsUe5j" alt="Logo BBC" onerror="this.style.display='none'">
+        <span style="color:#991b1b; font-weight:800; font-size:1.1rem; margin-left:8px;">Build Better Communication</span>
+      </div>
+      <h1>📘 Panduan Sistem Daftar Tamu Digital</h1>
+      <p>Petunjuk lengkap pemindaian buku tamu dari HP, pengelolaan & verifikasi data di Laptop, hingga pencatatan bukti follow-up.</p>
+    </div>
+  </header>
+
+  <!-- KARTU AKSES CEPAT (BISA LANGSUNG KLIK DARI LAPTOP MAUPUN HP) -->
+  <div class="quick-access">
+    <div class="quick-grid">
+      <div class="qa-card">
+        <div>
+          <div class="qa-title">💻 Dashboard Laptop / PC</div>
+          <div class="qa-desc">Untuk mengecek hasil scan, mengedit data sel yang kosong/kuning, mencari nama tamu, dan menempel (Paste) bukti WA.</div>
+        </div>
+        <a href="https://bbckarawang.github.io/scanner-tamu-bbc/" target="_blank" class="btn-link btn-laptop">
+          Buka Dashboard Laptop ↗
+        </a>
+      </div>
+
+      <div class="qa-card">
+        <div>
+          <div class="qa-title">📱 Aplikasi Scanner HP</div>
+          <div class="qa-desc">Untuk memotret kertas daftar tamu agar otomatis masuk ke Spreadsheet, atau mengunggah screenshot bukti chat WA dari galeri HP.</div>
+        </div>
+        <a href="https://bbckarawang.github.io/scanner-tamu-bbc/mobile.html" target="_blank" class="btn-link btn-hp">
+          Buka Aplikasi Scanner HP ↗
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- TAB NAVIGASI -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('tab-hp', this)">📱 1. Cara Pakai di HP</button>
+      <button class="tab-btn" onclick="switchTab('tab-laptop', this)">💻 2. Cara Pakai di Laptop</button>
+      <button class="tab-btn" onclick="switchTab('tab-install', this)">📲 3. Install Aplikasi di HP</button>
+    </div>
+
+    <!-- PANEL 1: PANDUAN HP -->
+    <div id="tab-hp" class="section-panel active">
+      <div class="card">
+        <h2>📷 Alur Kerja Pemindaian Daftar Tamu (HP)</h2>
+        <div class="flow-diagram">
+          <div class="flow-node"><span>📄</span>Foto Kertas Daftar Tamu</div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-node"><span>🔄</span>Putar 90° Jika Miring</div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-node"><span>🤖</span>AI Membaca Tulisan</div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-node"><span>📊</span>Masuk Google Sheets</div>
+        </div>
+
+        <div class="step-item">
+          <div>
+            <span class="step-badge">LANGKAH 1</span>
+            <div class="step-title">Buka Aplikasi Scanner Tamu BBC di HP</div>
+            <p class="step-desc">Ketuk ikon <strong>Scanner Tamu BBC</strong> yang sudah terpasang di layar utama HP, atau klik tombol <em>Buka Aplikasi Scanner HP</em> di atas.</p>
+          </div>
+          <div class="mockup-box">
+            <svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg">
+              <rect width="240" height="150" fill="#e2e8f0"/>
+              <rect x="65" y="10" width="110" height="130" rx="14" fill="#1e293b"/>
+              <rect x="71" y="18" width="98" height="114" rx="8" fill="#f8fafc"/>
+              <rect x="85" y="34" width="32" height="32" rx="8" fill="#991b1b"/>
+              <text x="101" y="55" font-size="16" text-anchor="middle" fill="white">📋</text>
+              <text x="101" y="76" font-size="7" font-weight="bold" text-anchor="middle" fill="#1e293b">Scanner BBC</text>
+              <circle cx="116" cy="36" r="5" fill="#22c55e"/>
+            </svg>
+            <div class="mockup-caption">Ikon aplikasi di layar utama HP</div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div>
+            <span class="step-badge">LANGKAH 2</span>
+            <div class="step-title">Foto Kertas Tabel dengan Jelas</div>
+            <div class="step-desc">
+              <ul>
+                <li>Tekan tombol biru <strong>📸 Buka Kamera</strong> (atau <strong>🖼️ Pilih Galeri</strong> jika sudah memfoto sebelumnya).</li>
+                <li>Posisikan HP secara mendatar (<em>landscape</em>) agar seluruh kolom dari kiri ke kanan tertangkap dekat dan tajam.</li>
+                <li>Jika hasil preview miring, tekan tombol kuning <strong>🔄 Putar Foto 90°</strong> hingga posisi teks tegak terbaca.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="mockup-box">
+            <svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg">
+              <rect width="240" height="150" fill="#f1f5f9"/>
+              <rect x="20" y="16" width="200" height="72" rx="6" fill="white" stroke="#94a3b8"/>
+              <rect x="28" y="24" width="184" height="12" fill="#991b1b"/>
+              <line x1="28" y1="48" x2="212" y2="48" stroke="#cbd5e1"/>
+              <line x1="28" y1="62" x2="212" y2="62" stroke="#cbd5e1"/>
+              <line x1="28" y1="76" x2="212" y2="76" stroke="#cbd5e1"/>
+              <rect x="20" y="96" width="200" height="20" rx="5" fill="#f59e0b"/>
+              <text x="120" y="109" font-size="9" font-weight="bold" text-anchor="middle" fill="white">🔄 Putar Foto 90°</text>
+              <rect x="20" y="122" width="200" height="20" rx="5" fill="#b91c1c"/>
+              <text x="120" y="135" font-size="9" font-weight="bold" text-anchor="middle" fill="white">Proses & Kirim ke Spreadsheet</text>
+            </svg>
+            <div class="mockup-caption">Pastikan posisi tabel tegak sebelum dikirim</div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div>
+            <span class="step-badge">LANGKAH 3</span>
+            <div class="step-title">Kirim & Lampirkan Bukti Follow-Up WA</div>
+            <div class="step-desc">
+              <ul>
+                <li>Tekan tombol merah <strong>Proses & Kirim ke Spreadsheet</strong> dan tunggu animasi robot selesai memindai.</li>
+                <li>Untuk upload bukti chat WA dari HP: gunakan kotak filter <strong>Belum Ada Bukti</strong> atau ketik nama tamu pada kolom pencarian, pilih file screenshot WA, lalu tekan <strong>Upload Screenshot WA</strong>.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="mockup-box">
+            <svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg">
+              <rect width="240" height="150" fill="#fef2f2"/>
+              <rect x="24" y="18" width="192" height="114" rx="10" fill="white" stroke="#fca5a5" stroke-dasharray="4"/>
+              <text x="120" y="64" font-size="34" text-anchor="middle">🤖</text>
+              <line x1="65" y1="54" x2="175" y2="54" stroke="#22c55e" stroke-width="3"/>
+              <text x="120" y="92" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#991b1b">Membaca tulisan tangan...</text>
+              <rect x="55" y="104" width="130" height="18" rx="4" fill="#15803d"/>
+              <text x="120" y="116" font-size="8.5" font-weight="bold" text-anchor="middle" fill="white">🎉 Berhasil masuk Spreadsheet!</text>
+            </svg>
+            <div class="mockup-caption">Otomatis mengubah centang & angka menjadi ✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 2: PANDUAN LAPTOP -->
+    <div id="tab-laptop" class="section-panel">
+      <div class="card">
+        <h2>💻 Pengelolaan & Verifikasi Data di Laptop</h2>
+        <p style="font-size:0.93rem; color:#475569; margin-top:0;">Buka alamat <a href="https://bbckarawang.github.io/scanner-tamu-bbc/" target="_blank" style="color:#991b1b; font-weight:600;">https://bbckarawang.github.io/scanner-tamu-bbc/</a> di browser laptop untuk memeriksa dan melengkapi data.</p>
+
+        <div class="step-item">
+          <div>
+            <span class="step-badge">FITUR 1</span>
+            <div class="step-title">Cek Sel Berwarna Kuning & Edit Sel Kosong</div>
+            <div class="step-desc">
+              <ul>
+                <li><strong>Sel Kuning:</strong> Menandakan tulisan tangan atau nomor HP yang agak ragu dibaca oleh AI. Klik sel tersebut untuk memperbaiki teksnya.</li>
+                <li><strong>Edit Kolom Teks:</strong> Klik langsung pada sel <em>Tanggal, Nama, No. HP, Pendidikan/Pekerjaan,</em> atau <em>Keterangan</em> untuk mengetik.</li>
+                <li><strong>Klik Centang (✓):</strong> Klik sekali pada kotak kosong di kolom <em>Ortu/Wali, Peserta, Keperluan, Sumber Info,</em> atau <em>Follow Up</em> untuk memunculkan/menghapus tanda <strong>✓</strong>.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="mockup-box">
+            <svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg">
+              <rect width="240" height="150" fill="#f8fafc"/>
+              <rect x="12" y="16" width="216" height="24" fill="#991b1b"/>
+              <text x="42" y="31" font-size="8" fill="white" font-weight="bold">Nama</text>
+              <text x="108" y="31" font-size="8" fill="white" font-weight="bold">No. HP</text>
+              <text x="165" y="31" font-size="8" fill="white" font-weight="bold">Ortu</text>
+              <text x="202" y="31" font-size="8" fill="white" font-weight="bold">Sosmed</text>
+              
+              <rect x="12" y="40" width="216" height="28" fill="#e0f2fe" stroke="#cbd5e1"/>
+              <rect x="12" y="40" width="4" height="28" fill="#2563eb"/>
+              <text x="42" y="57" font-size="8" fill="#0f172a">Meli Diana</text>
+              <rect x="78" y="43" width="66" height="22" fill="#fef08a"/>
+              <text x="111" y="57" font-size="8" font-weight="bold" text-anchor="middle" fill="#854d0e">081212003853</text>
+              <text x="165" y="58" font-size="11" font-weight="bold" text-anchor="middle" fill="#16a34a">✓</text>
+              <rect x="186" y="43" width="36" height="22" fill="#dcfce7" stroke="#16a34a" stroke-dasharray="2"/>
+              <text x="204" y="58" font-size="11" font-weight="bold" text-anchor="middle" fill="#16a34a">✓</text>
+
+              <rect x="50" y="96" width="140" height="26" rx="6" fill="#16a34a"/>
+              <text x="120" y="112" font-size="8.5" font-weight="bold" text-anchor="middle" fill="white">💾 Simpan Semua Perubahan (1)</text>
+            </svg>
+            <div class="mockup-caption">Baris yang diubah ditandai garis biru di kiri</div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div>
+            <span class="step-badge">FITUR 2</span>
+            <div class="step-title">Simpan Semua Perubahan Sekaligus</div>
+            <p class="step-desc">Kamu bisa mengedit beberapa baris sekaligus. Setelah selesai, cukup klik satu kali tombol hijau <strong>💾 Simpan Semua Perubahan</strong> di pojok kanan atas. Warna kuning akan otomatis hilang setelah disimpan.</p>
+          </div>
+          <div class="mockup-box">
+            <svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg">
+              <rect width="240" height="150" fill="#f1f5f9"/>
+              <rect x="20" y="25" width="200" height="32" rx="6" fill="white" stroke="#cbd5e1"/>
+              <text x="32" y="45" font-size="9" fill="#64748b">🔍 Cari nama / No. HP...</text>
+              <rect x="35" y="82" width="170" height="34" rx="8" fill="#15803d"/>
+              <text x="120" y="103" font-size="9.5" font-weight="bold" text-anchor="middle" fill="white">✅ 3 baris berhasil disimpan!</text>
+            </svg>
+            <div class="mockup-caption">Gunakan kotak pencarian untuk filter cepat</div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div>
+            <span class="step-badge">FITUR 3</span>
+            <div class="step-title">Paste Screenshot WhatsApp Tanpa Simpan File</div>
+            <div class="step-desc">
+              <ul>
+                <li>Buka chat WhatsApp Web/Desktop tamu yang sudah di-follow up, lalu tekan tombol <strong>PrintScreen</strong> (atau <code>Win + Shift + S</code>).</li>
+                <li>Kembali ke dashboard, klik tombol <strong>+ Paste Bukti</strong> pada baris tamu tersebut, lalu tekan <strong>Ctrl + V</strong>. Gambar langsung terunggah ke Google Drive dan kolom <em>Follow Up</em> otomatis tercentang!</li>
+              </ul>
+            </div>
+          </div>
+          <div class="mockup-box">
+            <svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg">
+              <rect width="240" height="150" fill="#94a3b8"/>
+              <rect x="30" y="18" width="180" height="114" rx="10" fill="white"/>
+              <text x="120" y="40" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#0f172a">Bukti Follow-Up: Meli Diana</text>
+              <rect x="46" y="50" width="148" height="48" rx="6" fill="#f8fafc" stroke="#64748b" stroke-dasharray="4"/>
+              <text x="120" y="78" font-size="10" font-weight="bold" text-anchor="middle" fill="#2563eb">Tekan Ctrl + V</text>
+              <rect x="90" y="106" width="60" height="18" rx="4" fill="#e2e8f0"/>
+              <text x="120" y="118" font-size="8" text-anchor="middle" fill="#1e293b">Tutup</text>
+            </svg>
+            <div class="mockup-caption">Langsung tempel hasil PrintScreen dengan Ctrl+V</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 3: INSTALL DI HP -->
+    <div id="tab-install" class="section-panel">
+      <div class="card">
+        <h2>📲 Cara Memasang Aplikasi Scanner di HP (PWA)</h2>
+        <p style="font-size:0.93rem; color:#475569; margin-top:0;">Jika ada staf baru yang ingin memasang aplikasi Scanner Tamu BBC di HP-nya tanpa perlu lewat Play Store/App Store:</p>
+
+        <div class="step-item">
+          <div>
+            <span class="step-badge">ANDROID (CHROME)</span>
+            <div class="step-title">Tambahkan ke Layar Utama</div>
+            <div class="step-desc">
+              <ul>
+                <li>Buka link <a href="https://bbckarawang.github.io/scanner-tamu-bbc/mobile.html" target="_blank" style="color:#0284c7; font-weight:600;">https://bbckarawang.github.io/scanner-tamu-bbc/mobile.html</a> menggunakan <strong>Google Chrome</strong>.</li>
+                <li>Ketuk ikon <strong>titik tiga (⋮)</strong> di pojok kanan atas Chrome.</li>
+                <li>Pilih <strong>Tambahkan ke layar utama (Add to Home screen)</strong> ➔ pilih <strong>Install</strong>.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="mockup-box">
+            <svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg">
+              <rect width="240" height="150" fill="#f1f5f9"/>
+              <rect x="45" y="14" width="150" height="122" rx="10" fill="white" stroke="#cbd5e1"/>
+              <rect x="45" y="14" width="150" height="24" rx="10" fill="#991b1b"/>
+              <text x="182" y="30" font-size="14" font-weight="bold" fill="white">⋮</text>
+              <rect x="75" y="42" width="112" height="68" rx="6" fill="white" stroke="#94a3b8"/>
+              <rect x="80" y="68" width="102" height="20" rx="4" fill="#e0f2fe"/>
+              <text x="131" y="81" font-size="7.5" font-weight="bold" text-anchor="middle" fill="#0369a1">📲 Tambahkan ke layar utama</text>
+            </svg>
+            <div class="mockup-caption">Ikon aplikasi akan muncul di menu HP</div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div>
+            <span class="step-badge">IPHONE / IOS (SAFARI)</span>
+            <div class="step-title">Add to Home Screen lewat Safari</div>
+            <div class="step-desc">
+              <ul>
+                <li>Buka link <a href="https://bbckarawang.github.io/scanner-tamu-bbc/mobile.html" target="_blank" style="color:#0284c7; font-weight:600;">mobile.html</a> menggunakan browser <strong>Safari</strong>.</li>
+                <li>Ketuk ikon <strong>Share (kotak dengan panah ke atas)</strong> di bagian bawah layar.</li>
+                <li>Geser ke bawah dan pilih <strong>Add to Home Screen (Tambah ke Layar Utama)</strong>, lalu ketuk <strong>Add</strong>.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="mockup-box">
+            <svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg">
+              <rect width="240" height="150" fill="#f1f5f9"/>
+              <rect x="45" y="14" width="150" height="122" rx="10" fill="white" stroke="#cbd5e1"/>
+              <rect x="65" y="46" width="110" height="44" rx="8" fill="#f8fafc" stroke="#0284c7"/>
+              <text x="120" y="72" font-size="8.5" font-weight="bold" text-anchor="middle" fill="#0284c7">➕ Add to Home Screen</text>
+              <text x="120" y="122" font-size="14" text-anchor="middle" fill="#0284c7">⬆️ Share</text>
+            </svg>
+            <div class="mockup-caption">Gunakan Safari pada perangkat iPhone/iPad</div>
+          </div>
+        </div>
+
+        <div class="callout info">
+          <strong>💡 Catatan Kuota Sistem:</strong> Sistem pemindaian ini menggunakan Google Gemini API Free Tier yang gratis digunakan setiap hari dengan kapasitas hingga ±1.500 lembar pemindaian per hari.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Sistem Digitalisasi Buku Tamu &bull; <strong>Build Better Communication (BBC) Karawang</strong>
+  </footer>
+
+  <script>
+    function switchTab(panelId, btn) {
+      document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(panelId).classList.add('active');
+      btn.classList.add('active');
+    }
+  </script>
+</body>
+</html>
